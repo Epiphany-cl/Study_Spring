@@ -337,7 +337,52 @@ public class JDBCTest {
 - bean对象就绪可以使用
 - bean对象销毁（需在配置bean时指定销毁方法） IOC容器关闭
 
+##### initMethod()和destroyMethod()方法
 
+```xml
+    <!-- 使用init-method属性指定初始化方法 -->
+    <!-- 使用destroy-method属性指定销毁方法,singleton才会生效,prototype无效 -->
+    <bean class="User" 
+          scope="prototype" 
+          init-method="initMethod" 
+          destroy-method="destroyMethod">
+        <property name="id" value="1001"></property>
+        <property name="username" value="admin"></property>
+        <property name="password" value="123456"></property>
+        <property name="age" value="23"></property>
+    </bean>
+```
+需要提前在对象中写initMethod()和destroyMethod()方法
+
+###### bean的后置处理器
+
+bean的后置处理器会在生命周期的初始化前后添加额外的操作，需要实现BeanPostProcessor接口，且配置到IOC容器中，需要注意的是，bean后置处理器不是单独针对某一个bean生效，而是针对IOC容器中所有bean都会执行
+
+创建bean的后置处理器：
+
+```java
+public class MyBeanProcessor implements BeanPostProcessor {
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("☆☆☆" + beanName + " = " + bean);
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("★★★" + beanName + " = " + bean);
+        return bean;
+    }
+}
+```
+
+在IOC容器中配置:
+
+```xml
+    <!-- bean的后置处理器要放入IOC容器才能生效 -->
+    <bean id="myBeanProcessor" class="MyBeanProcessor"/>
+```
 
 ---
 #### `<bean>`标签属性
