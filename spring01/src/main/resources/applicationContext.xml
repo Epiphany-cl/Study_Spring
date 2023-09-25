@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util
+       https://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd"
+>
+
+    <!--声明数据源-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <bean id="helloWorld" class="HelloWorld"/>
+    <bean class="java.util.ArrayList" id="arrayList"/>
+
+    <bean class="Student" id="student">
+        <property name="clazz" ref="clazz"/>
+        <property name="sex" value="男"/>
+        <property name="age" value="18"/>
+        <property name="name" value="小明"/>
+        <property name="id" value="121"/>
+    </bean>
+    <bean class="Clazz" id="clazz">
+        <property name="className" value="财运滚滚"/>
+        <property name="clazzId" value="1001"/>
+    </bean>
+
+    <bean id="student2" class="Student"
+          p:id="1001" p:name="小明"  p:sex="男"
+    />
+</beans>
+
