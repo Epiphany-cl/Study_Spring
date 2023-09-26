@@ -1,6 +1,55 @@
 # Spring 学习
 
-#### IOC入门案例
+---
+
+<!-- TOC -->
+* [Spring 学习](#spring-学习)
+    * [IOC 控制反转](#ioc-控制反转)
+      * [一、IOC入门案例](#一ioc入门案例)
+        * [1. 创建依赖](#1-创建依赖)
+        * [2. 创建一个类](#2-创建一个类)
+        * [3. 创建applicationContext.xml 并配置bean](#3-创建applicationcontextxml-并配置bean)
+        * [4.在测试类进行测试IOC](#4在测试类进行测试ioc)
+      * [二、依赖注入之setter注入](#二依赖注入之setter注入)
+        * [1. 创建一个含有属性的类](#1-创建一个含有属性的类)
+        * [2. 配置Bean](#2-配置bean)
+        * [3. 测试](#3-测试)
+      * [三、依赖注入之构造器注入](#三依赖注入之构造器注入)
+      * [四、类型属性赋值](#四类型属性赋值)
+        * [1. 引用外部已声明的bean](#1-引用外部已声明的bean)
+        * [2. 内部bean](#2-内部bean)
+        * [3. 级联属性赋值](#3-级联属性赋值)
+      * [五、为集合类型属性赋值](#五为集合类型属性赋值)
+        * [1. 数组](#1-数组)
+        * [2. List、Set集合](#2-listset集合)
+        * [3. Map](#3-map)
+        * [4. 集合类型的bean](#4-集合类型的bean)
+        * [5. p命名空间](#5-p命名空间)
+        * [6. 引入外部属性文件](#6-引入外部属性文件)
+        * [7. FactoryBean](#7-factorybean)
+      * [六、基于注解XML的自动装配](#六基于注解xml的自动装配)
+      * [七、基于注解管理bean](#七基于注解管理bean)
+        * [扫描组件](#扫描组件)
+          * [1. 最基本的扫描方式](#1-最基本的扫描方式)
+          * [2. 指定要排除的组件](#2-指定要排除的组件)
+          * [3. 仅扫描指定组件](#3-仅扫描指定组件)
+      * [七、基于注解的自动装配](#七基于注解的自动装配)
+        * [@Autowired注解](#autowired注解)
+        * [@Autowired工作流程](#autowired工作流程)
+      * [八、特殊值处理](#八特殊值处理)
+        * [1. null值](#1-null值)
+        * [2. XML实体 `<` `&`](#2-xml实体--)
+      * [九、bean的生命周期](#九bean的生命周期)
+        * [1. initMethod()和destroyMethod()方法](#1-initmethod和destroymethod方法)
+          * [2. bean的后置处理器](#2-bean的后置处理器)
+        * [`<bean>`标签属性](#bean标签属性)
+<!-- TOC -->
+
+---
+
+### IOC 控制反转
+
+#### 一、IOC入门案例
 
 ##### 1. 创建依赖
 
@@ -48,7 +97,7 @@ public class MyTest {
 }
 ```
 
-#### 依赖注入之setter注入
+#### 二、依赖注入之setter注入
 
 ##### 1. 创建一个含有属性的类
 ```java
@@ -84,7 +133,7 @@ public class StudentTest {
 }
 ```
 
-#### 依赖注入之构造器注入
+#### 三、依赖注入之构造器注入
 
 ```xml
     <bean class="Student" id="student">
@@ -99,7 +148,7 @@ constructor-arg 的 name 属性可以省略 但是字段顺序必须和构造器
 除此之外还可以用 index 属性，但是感觉多此一举，聊胜于无
 
 
-#### 类型属性赋值
+#### 四、类型属性赋值
 
 ##### 1. 引用外部已声明的bean
 
@@ -154,7 +203,7 @@ constructor-arg 的 name 属性可以省略 但是字段顺序必须和构造器
     </bean>
 ```
 
-#### 为集合类型属性赋值
+#### 五、为集合类型属性赋值
 
 ##### 1. 数组
 
@@ -300,7 +349,7 @@ public class JDBCTest {
 }
 ```
 
-#### FactoryBean
+##### 7. FactoryBean
 
 ```java
 public class UserFactoryBean implements FactoryBean<User> {
@@ -335,7 +384,7 @@ public class UserFactoryBeanTest {
 }
 ```
 
-#### 基于注解XML的自动装配
+#### 六、基于注解XML的自动装配
 
 使用bean标签的autowire属性设置自动装配效果
 - 自动装配方式：byType
@@ -355,9 +404,9 @@ public class UserFactoryBeanTest {
   - byName：将自动装配的属性的属性名，作为bean的id在IOC容器中匹配相对应的bean进行赋值
 
 
-#### 基于注解管理bean
+#### 七、基于注解管理bean
 
-##### 标识组件的常用注解
+标识组件的常用注解
 
 - @Component：将类标识为普通组件  
 - @Controller：将类标识为控制层组件  
@@ -404,7 +453,7 @@ public class UserFactoryBeanTest {
     </contex:component-scan>
 ```
 
-#### 基于注解的自动装配
+#### 七、基于注解的自动装配
 
 ##### @Autowired注解
 
@@ -446,7 +495,7 @@ public class UserController {
 ```
 
 
-#### 特殊值处理
+#### 八、特殊值处理
 
 ##### 1. null值
 
@@ -475,7 +524,7 @@ public class UserController {
 </property>
 ```
 
-#### bean的生命周期
+#### 九、bean的生命周期
 
 - bean对象创建（调用无参构造器） 给bean对象设置属性
 - bean对象初始化之前操作（由bean的前置处理器负责） 
@@ -484,7 +533,7 @@ public class UserController {
 - bean对象就绪可以使用
 - bean对象销毁（需在配置bean时指定销毁方法） IOC容器关闭
 
-##### initMethod()和destroyMethod()方法
+##### 1. initMethod()和destroyMethod()方法
 
 ```xml
     <!-- 使用init-method属性指定初始化方法 -->
@@ -501,7 +550,7 @@ public class UserController {
 ```
 需要提前在对象中写initMethod()和destroyMethod()方法
 
-###### bean的后置处理器
+###### 2. bean的后置处理器
 
 bean的后置处理器会在生命周期的初始化前后添加额外的操作，需要实现BeanPostProcessor接口，且配置到IOC容器中，需要注意的是，bean后置处理器不是单独针对某一个bean生效，而是针对IOC容器中所有bean都会执行
 
@@ -532,9 +581,9 @@ public class MyBeanProcessor implements BeanPostProcessor {
 ```
 
 ---
-#### `<bean>`标签属性
+##### `<bean>`标签属性
 
-##### 1. scope("singleton|prototype")
+1. scope("singleton|prototype")
 
 - singleton: 单例模式(默认)
 - prototype: 原型模式
