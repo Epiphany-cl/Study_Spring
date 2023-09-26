@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:contex="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--<contex:component-scan base-package="controller,dao,service"/>-->
+
+
+    <!--<contex:component-scan base-package="controller,dao,service">
+        &lt;!&ndash; context:exclude-filter标签：指定排除规则 &ndash;&gt;
+        &lt;!&ndash;
+        type：设置排除或包含的依据
+        type="annotation"，根据注解排除，expression中设置要排除的注解的全类名
+        type="assignable"，根据类型排除，expression中设置要排除的类型的全类名
+        &ndash;&gt;
+        <contex:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <contex:exclude-filter type="assignable" expression="controller.UserController"/>
+    </contex:component-scan>-->
+
+    <contex:component-scan base-package="controller,service,dao" use-default-filters="false">
+        <!-- context:include-filter标签：指定在原有扫描规则的基础上追加的规则 -->
+        <!-- use-default-filters属性：取值false表示关闭默认扫描规则 -->
+        <!-- 此时必须设置use-default-filters="false"，因为默认规则即扫描指定包下所有类 -->
+        <!--
+        type：设置排除或包含的依据
+        type="annotation"，根据注解，expression中设置要过滤的注解的全类名
+        type="assignable"，根据类型，expression中设置要过滤的类型的全类名
+        -->
+        <contex:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <contex:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+        <contex:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+    </contex:component-scan>
+
+
+
+</beans>

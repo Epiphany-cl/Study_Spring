@@ -299,6 +299,153 @@ public class JDBCTest {
     }
 }
 ```
+
+#### FactoryBean
+
+```java
+public class UserFactoryBean implements FactoryBean<User> {
+    @Override
+    public User getObject() throws Exception {
+        return new User();
+    }
+
+
+    @Override
+    public Class<?> getObjectType() {
+        return User.class;
+    }
+}
+```
+
+```java
+public class UserFactoryBeanTest {
+
+    ApplicationContext applicationContext;
+
+    @Before
+    public void inti(){
+        applicationContext = new ClassPathXmlApplicationContext("applicationContext.xml");
+    }
+
+    @Test
+    public void test(){
+        User user = (User)applicationContext.getBean("user");
+        System.out.println(user);
+    }
+}
+```
+
+#### 基于注解XML的自动装配
+
+使用bean标签的autowire属性设置自动装配效果
+- 自动装配方式：byType
+
+  - byType：根据类型匹配IOC容器中的某个兼容类型的bean，为属性自动赋值
+  - 若在IOC中，没有任何一个兼容类型的bean能够为属性赋值，则该属性不装配，即值为默认值 null
+  - 若在IOC中，有多个兼容类型的bean能够为属性赋值，则抛出异常 NoUniqueBeanDefinitionException
+
+```xml
+<bean id="userController" class="controller.UserController" autowire="byType"/>
+<bean id="userService" class="service.impl.UserServiceImpl" autowire="byType"/>
+<bean id="userDao" class="UserDaoImpl"/>
+```
+
+- 自动装配方式：byName
+
+  - byName：将自动装配的属性的属性名，作为bean的id在IOC容器中匹配相对应的bean进行赋值
+
+
+#### 基于注解管理bean
+
+##### 标识组件的常用注解
+
+- @Component：将类标识为普通组件  
+- @Controller：将类标识为控制层组件  
+- @Service：将类标识为业务层组件 
+- @Repository：将类标识为持久层组件
+
+##### 扫描组件
+
+###### 1. 最基本的扫描方式
+
+```xml
+    <contex:component-scan base-package="controller,dao,service"/>
+```
+###### 2. 指定要排除的组件
+
+```xml
+    <contex:component-scan base-package="controller,dao,service">
+        <!-- context:exclude-filter标签：指定排除规则 -->
+        <!--
+        type：设置排除或包含的依据
+        type="annotation"，根据注解排除，expression中设置要排除的注解的全类名
+        type="assignable"，根据类型排除，expression中设置要排除的类型的全类名
+        -->
+        <contex:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <contex:exclude-filter type="assignable" expression="controller.UserController"/>
+    </contex:component-scan>
+```
+
+###### 3. 仅扫描指定组件
+
+```xml
+    <contex:component-scan base-package="controller,service,dao" use-default-filters="false">
+        <!-- context:include-filter标签：指定在原有扫描规则的基础上追加的规则 -->
+        <!-- use-default-filters属性：取值false表示关闭默认扫描规则 -->
+        <!-- 此时必须设置use-default-filters="false"，因为默认规则即扫描指定包下所有类 -->
+        <!--
+        type：设置排除或包含的依据
+        type="annotation"，根据注解，expression中设置要过滤的注解的全类名
+        type="assignable"，根据类型，expression中设置要过滤的类型的全类名
+        -->
+        <contex:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <contex:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+        <contex:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+    </contex:component-scan>
+```
+
+#### 基于注解的自动装配
+
+##### @Autowired注解
+
+在成员变量上直接标记@Autowired注解即可完成自动装配，不需要提供setXxx()方法。以后我们在项    目中的正式用法就是这样。
+
+##### @Autowired工作流程
+
+- 首先根据所需要的组件类型到IOC容器中查找
+  - 能够找到唯一的bean：直接执行装配 
+  - 如果完全找不到匹配这个类型的bean：装配失败
+  - 和所需类型匹配的bean不止一个 
+    - 没有@Qualifier注解：根据@Autowired标记位置成员变量的变量名作为bean的id进行匹配
+      - 能够找到：执行装配
+      - 找不到：装配失败
+    - 使用@Qualifier注解：根据@Qualifier注解中指定的名称作为bean的id进行匹配
+        - 能够找到：执行装配
+        - 找不到：装配失败
+
+```java
+@Controller
+public class UserController {
+
+    @Autowired
+    @Qualifier("userServiceImpl")
+    private UserService userService;
+
+    public void show(){
+        userService.show();
+    }
+}
+```
+
+@Autowired中有属性required，默认值为true，因此在自动装配无法找到相应的bean时，会装配失败
+可以将属性required的值设置为false，则表示能装就装，装不上就不装，此时自动装配的属性为默认值
+但是实际开发时，基本上所有需要装配组件的地方都是必须装配的，用不上这个属性。
+
+```java
+@Autowired(required = false) //当required为false时 装配不上将不会抛异常
+```
+
+
 #### 特殊值处理
 
 ##### 1. null值
