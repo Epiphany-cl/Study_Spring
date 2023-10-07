@@ -33,16 +33,31 @@
           * [1. 最基本的扫描方式](#1-最基本的扫描方式)
           * [2. 指定要排除的组件](#2-指定要排除的组件)
           * [3. 仅扫描指定组件](#3-仅扫描指定组件)
-      * [七、基于注解的自动装配](#七基于注解的自动装配)
+      * [八、基于注解的自动装配](#八基于注解的自动装配)
         * [@Autowired注解](#autowired注解)
         * [@Autowired工作流程](#autowired工作流程)
-      * [八、特殊值处理](#八特殊值处理)
+      * [九、特殊值处理](#九特殊值处理)
         * [1. null值](#1-null值)
         * [2. XML实体 `<` `&`](#2-xml实体--)
-      * [九、bean的生命周期](#九bean的生命周期)
+      * [十、bean的生命周期](#十bean的生命周期)
         * [1. initMethod()和destroyMethod()方法](#1-initmethod和destroymethod方法)
-          * [2. bean的后置处理器](#2-bean的后置处理器)
+        * [2. bean的后置处理器](#2-bean的后置处理器)
         * [`<bean>`标签属性](#bean标签属性)
+    * [AOP 面向切面编程(Aspect Oriented Programming)](#aop-面向切面编程aspect-oriented-programming)
+      * [一、 AOP概念与相关术语](#一-aop概念与相关术语)
+        * [1. 概述](#1-概述)
+        * [2. 相关概念](#2-相关概念)
+        * [3.作用](#3作用)
+      * [二、 基于注解的AOP](#二-基于注解的aop)
+        * [1. 技术说明](#1-技术说明)
+        * [2，准备工作](#2准备工作)
+        * [3，创建切片类并配置](#3创建切片类并配置)
+        * [4，测试类](#4测试类)
+        * [4，各种通知](#4各种通知)
+        * [5，切入表达式](#5切入表达式)
+        * [6，重用切入点表达式](#6重用切入点表达式)
+        * [7，切面优先级](#7切面优先级)
+      * [三、 基于XML的AOP(了解)](#三-基于xml的aop了解)
 <!-- TOC -->
 
 ---
@@ -453,7 +468,7 @@ public class UserFactoryBeanTest {
     </contex:component-scan>
 ```
 
-#### 七、基于注解的自动装配
+#### 八、基于注解的自动装配
 
 ##### @Autowired注解
 
@@ -495,7 +510,7 @@ public class UserController {
 ```
 
 
-#### 八、特殊值处理
+#### 九、特殊值处理
 
 ##### 1. null值
 
@@ -524,7 +539,7 @@ public class UserController {
 </property>
 ```
 
-#### 九、bean的生命周期
+#### 十、bean的生命周期
 
 - bean对象创建（调用无参构造器） 给bean对象设置属性
 - bean对象初始化之前操作（由bean的前置处理器负责） 
@@ -550,7 +565,7 @@ public class UserController {
 ```
 需要提前在对象中写initMethod()和destroyMethod()方法
 
-###### 2. bean的后置处理器
+##### 2. bean的后置处理器
 
 bean的后置处理器会在生命周期的初始化前后添加额外的操作，需要实现BeanPostProcessor接口，且配置到IOC容器中，需要注意的是，bean后置处理器不是单独针对某一个bean生效，而是针对IOC容器中所有bean都会执行
 
@@ -599,15 +614,379 @@ public class MyBeanProcessor implements BeanPostProcessor {
 - session 一次会话有效
 
 
+### AOP 面向切面编程(Aspect Oriented Programming)
+
+#### 一、 AOP概念与相关术语
+
+##### 1. 概述
+
+AOP（Aspect Oriented Programming）是一种设计思想，
+是软件设计领域中的面向切面编程，它是面向对象编程的一种补充和完善，
+它以通过预编译方式和运行期动态代理方式实现在不修改源代码的情况下给程序动态统一添加额外功能的一种技术。
+
+##### 2. 相关概念
+
+- Target(目标对象)
+
+要被增强的对象，一般是业务逻辑类的对象。--TeamService
+
+-  Proxy（代理）
+
+一个类被 AOP 织入增强后，就产生一个结果代理类。 --ProxyTeamService--动态生成
+
+-  Aspect(切面)
 
 
+表示增强的功能，就是一些代码完成的某个功能，非业务功能。是切入点和通知的结合。--服务性代码：日志 权限 事务
+
+-  JoinPoint(连接点)
+
+所谓连接点是指那些被拦截到的点。在Spring中,这些点指的是方法（一般是类中的业务方法）,因为Spring只支持方法类型的连接点。 --add()
+
+-  PointCut(切入点)
+
+切入点指声明的一个或多个连接点的集合。通过切入点指定一组方法。
+被标记为 final 的方法是不能作为连接点与切入点的。因为最终的是不能被修改的，不能被增强的。
+
+-  Advice(通知/增强)
+
+所谓通知是指拦截到 Joinpoint 之后所要做的事情就是通知。通知定义了增强代码切入到目标代码的时间点，是目标方法执行之前执行，还是之后执行等。通知类型不同，切入时间不同。
+通知的类型：前置通知,后置通知,异常通知,最终通知,环绕通知。
+切入点定义切入的位置，通知定义切入的时间。
+
+-   Weaving(织入).
+
+是指把增强应用到目标对象来创建新的代理对象的过程。 spring 采用动态代理织入，而 AspectJ 采用编译期织入和类装载期织入。
+
+> 切面的三个关键因素：
+>
+> 1、切面的功能--切面能干啥
+>
+> 2、切面的执行位置--使用Pointcut表示切面执行的位置
+>
+> 3、切面的执行时间--使用Advice表示时间，在目标方法之前还是之后执行。
+
+##### 3.作用
+
+- 简化代码：把方法中固定位置的重复的代码抽取出来，让被抽取的方法更专注于自己的核心功能，提高内聚性。
+- 代码增强：把特定的功能封装到切面类中，看哪里有需要，就往上套，被套用了切面逻辑的方法就被切面给增强了。
+
+#### 二、 基于注解的AOP
+
+##### 1. 技术说明
+
+![image.png](https://s2.loli.net/2023/10/07/qICv1JaRe7TZFKm.png)
+
+- 动态代理（InvocationHandler）：JDK原生的实现方式，需要被代理的目标类必须实现接口。因为这个技术要求代理对象和目标对象实现同样的接口（兄弟两个拜把子模式）。
+- cglib：通过继承被代理的目标类（认干爹模式）实现代理，所以不需要目标类实现接口。
+- AspectJ：本质上是静态代理，将代理逻辑“织入”被代理的目标类编译得到的字节码文件，所以最终效果是动态的。weaver就是织入器。Spring只是借用了AspectJ中的注解。
+
+##### 2，准备工作
+
+- ① 添加依赖
+
+在之前的基础上添加以下依赖即可:
+
+```xml
+<!-- spring-aspects会帮我们传递过来aspectjweaver -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aspects</artifactId>
+    <version>5.3.1</version>
+</dependency>
+```
+
+- ② 准备被代理的资源
+
+Calculator接口:
+
+```java
+public interface Calculator {
+    int add(int i, int j);
+    int sub(int i, int j);
+    int mul(int i, int j);
+    int div(int i, int j);
+}
+```
+
+Calculator的实现类CalculatorPureImpl:
+
+```java
+@Component
+public class CalculatorPureImpl implements Calculator {
+
+    @Override
+    public int add(int i, int j) {
+        int result = i + j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int sub(int i, int j) {
+        int result = i - j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int mul(int i, int j) {
+        int result = i * j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int div(int i, int j) {
+        int result = i / j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+}
+```
+
+##### 3，创建切片类并配置
+
+```java
+@Aspect //表示这个类是一个切面类@Aspect
+@Component //注解保证这个切面类能够放入IOC容器@Component
+public class LogAspect {
 
 
+    @Before("execution(* cl.CalculatorPureImpl.* (..))")
+    public void beforeMethod(JoinPoint joinPoint) {
+        String methodName = joinPoint.getSignature().getName();
+        String args = Arrays.toString(joinPoint.getArgs());
+        System.out.println("Logger-->前置通知，方法名：" + methodName + "，参数：" + args);
+    }
 
 
+    @After("execution(* cl.CalculatorPureImpl.*(..))")
+    public void afterMethod(JoinPoint joinPoint) {
+        String methodName = joinPoint.getSignature().getName();
+        System.out.println("Logger-->后置通知，方法名：" + methodName);
+    }
 
 
+    @AfterReturning(value = "execution(* cl.CalculatorPureImpl.*(..))", returning = "result")
+    public void afterReturningMethod(JoinPoint joinPoint, Object result) {
+        String methodName = joinPoint.getSignature().getName();
+        System.out.println("Logger-->返回通知，方法名：" + methodName + "，结 果：" + result);
+    }
 
 
+    @AfterThrowing(value = "execution(* cl.CalculatorPureImpl.*(..))", throwing = "ex")
+    public void afterThrowingMethod(JoinPoint joinPoint, Throwable ex) {
+        String methodName = joinPoint.getSignature().getName();
+        System.out.println("Logger-->异常通知，方法名：" + methodName + "，异常：" + ex);
+    }
 
 
+    @Around("execution(* cl.CalculatorPureImpl.*(..))")
+    public Object aroundMethod(ProceedingJoinPoint joinPoint) {
+        String methodName = joinPoint.getSignature().getName();
+        String args = Arrays.toString(joinPoint.getArgs());
+        Object result = null;
+        try {
+            System.out.println("环绕通知-->目标对象方法执行之前");
+            //目标对象（连接点）方法的执行
+            result = joinPoint.proceed();
+            System.out.println("环绕通知-->目标对象方法返回值之后");
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            System.out.println("环绕通知-->目标对象方法出现异常时");
+        } finally {
+            System.out.println("环绕通知-->目标对象方法执行完毕");
+        }
+        return result;
+    }
+}
+```
+
+在spring配置类中的配置
+
+```xml
+<contex:component-scan base-package="xxx"/>
+<aop:aspectj-autoproxy/>
+```
+
+##### 4，测试类
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext.xml")
+public class AopTest {
+
+    @Autowired
+    private Calculator calculator;
+
+    @Test
+    public void name() {
+        int add = calculator.add(1, 2);
+    }
+}
+```
+
+> 再spring项目中用test需要导入spring-test依赖
+```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-test</artifactId>
+    <version>5.3.1</version>
+</dependency>
+```
+
+##### 4，各种通知
+
+- 前置通知：使用@Before注解标识，在被代理的目标方法前执行
+- 返回通知：使用@AfterReturning注解标识，在被代理的目标方法成功结束后执行（寿终正寝）
+- 异常通知：使用@AfterThrowing注解标识，在被代理的目标方法异常结束后执行（死于非命）
+- 后置通知：使用@After注解标识，在被代理的目标方法最终结束后执行（盖棺定论）
+- 环绕通知：使用@Around注解标识，使用try...catch...finally结构围绕整个被代理的目标方法，包括上面四种通知对应的所有位置
+
+各种通知的执行顺序:
+
+> Spring版本5.2.x以前： 
+>  - 前置通知 
+>  - 目标操作 
+>  - 后置通知 
+>  - 返回通知或异常通知 
+>
+> Spring版本5.2.x以后： 
+>  - 前置通知
+>  - 目标操作
+>  - 返回通知或异常通知 
+>  - 后置通知
+
+##### 5，切入表达式
+
+![image.png](https://s2.loli.net/2023/10/07/jlVRoJeH7viky19.png)
+
+
+- 包名部分
+  - 用`*`号代替包的某一层,表示该层任意,如:`*.Hello`匹配`com.Hello`,不匹配`com.softeem.Hello`
+  - 用`*..`表示包名任意,包的层次深度任意
+
+- 类名部分
+  - 用`*`表示类名任意
+  - 可以用`*`代替类名的一部分,如:`*Service`匹配所有名称以`Service`结尾的类或接口
+
+- 方法名部分
+  - 用`*`表示方法名任意
+  - 可以用`*`代替方法名的一部分,如:`*Operation`匹配所有方法名以`Operation`结尾的方法
+
+- 方法参数列表部分
+  - 用`(..)`表示参数列表任意
+  - 用`(int,..)`表示参数列表以一个`int`类型的参数开头
+  - 基本数据类型和对应的包装类型是不一样的,切入点表达式中使用 `int` 和实际方法中 `Integer` 是不匹配的
+
+- 方法返回值部分
+  - 如果想明确指定一个返回值类型,那么必须同时写明权限修饰符,如:`execution(public int _.._Service.* *(.., int))`
+  - 只写返回值类型without修饰符是错误的,如:`execution(* int _.._Service.*(.., int))` 
+
+##### 6，重用切入点表达式
+
+① 声明
+
+```java
+@Pointcut("execution(* cl.CalculatorPureImpl.* (..))")
+public void pointCut() {}
+```
+
+② 在用一个切面中使用
+
+```java
+@Before("pointCut()")
+public void beforeMethod(JoinPoint joinPoint) {
+    String methodName = joinPoint.getSignature().getName();
+    String args = Arrays.toString(joinPoint.getArgs());
+    System.out.println("Logger-->前置通知，方法名：" + methodName + "，参数：" + args);
+}
+```
+
+③ 在不用切面使用需要写全类名
+
+```java
+@Before("cl.LogAspect.pointCut()")
+public void beforeMethod(JoinPoint joinPoint) {
+    String methodName = joinPoint.getSignature().getName();
+    String args = Arrays.toString(joinPoint.getArgs());
+    System.out.println("Logger-->前置通知，方法名：" + methodName + "，参数：" + args);
+}
+```
+
+##### 7，切面优先级
+
+相同目标方法上同时存在多个切面时，切面的优先级控制切面的内外嵌套顺序。 
+
+- 优先级高的切面：外面
+- 优先级低的切面：里面
+
+使用@Order注解可以控制切面的优先级：
+- @Order(较小的数)：优先级高
+- @Order(较大的数)：优先级低
+
+#### 三、 基于XML的AOP(了解)
+
+```xml
+<contex:component-scan base-package="cl"/>
+<bean id="loggerAspect" class="cl.LoggerAspect"/>
+<aop:config>
+    <!--配置切面类-->
+    <aop:aspect ref="loggerAspect">
+        <aop:pointcut id="pointCut" expression="execution(* cl.CalculatorPureImpl.*(..))"/>
+        <aop:before method="beforeMethod" pointcut-ref="pointCut"/>
+        <aop:after method="afterMethod" pointcut-ref="pointCut"/>
+        <aop:after-returning method="afterReturningMethod" returning="result" pointcut-ref="pointCut"/>
+        <aop:after-throwing method="afterThrowingMethod" throwing="ex" pointcut-ref="pointCut"/>
+        <aop:around method="aroundMethod" pointcut-ref="pointCut"/>
+    </aop:aspect>
+</aop:config>
+```
+
+```java
+public class LoggerAspect {
+    public void beforeMethod(JoinPoint joinPoint) {
+        String methodName = joinPoint.getSignature().getName();
+        String args = Arrays.toString(joinPoint.getArgs());
+        System.out.println("Logger-->前置通知，方法名：" + methodName + "，参数：" + args);
+    }
+
+
+    public void afterMethod(JoinPoint joinPoint) {
+        String methodName = joinPoint.getSignature().getName();
+        System.out.println("Logger-->后置通知，方法名：" + methodName);
+    }
+
+
+    public void afterReturningMethod(JoinPoint joinPoint, Object result) {
+        String methodName = joinPoint.getSignature().getName();
+        System.out.println("Logger-->返回通知，方法名：" + methodName + "，结 果：" + result);
+    }
+
+
+    public void afterThrowingMethod(JoinPoint joinPoint, Throwable ex) {
+        String methodName = joinPoint.getSignature().getName();
+        System.out.println("Logger-->异常通知，方法名：" + methodName + "，异常：" + ex);
+    }
+
+
+    public Object aroundMethod(ProceedingJoinPoint joinPoint) {
+        String methodName = joinPoint.getSignature().getName();
+        String args = Arrays.toString(joinPoint.getArgs());
+        Object result = null;
+        try {
+            System.out.println("环绕通知-->目标对象方法执行之前");
+            //目标对象（连接点）方法的执行
+            result = joinPoint.proceed();
+            System.out.println("环绕通知-->目标对象方法返回值之后");
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            System.out.println("环绕通知-->目标对象方法出现异常时");
+        } finally {
+            System.out.println("环绕通知-->目标对象方法执行完毕");
+        }
+        return result;
+    }
+}
+```
