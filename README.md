@@ -472,7 +472,7 @@ public class UserFactoryBeanTest {
 
 ##### @Autowired注解
 
-在成员变量上直接标记@Autowired注解即可完成自动装配，不需要提供setXxx()方法。以后我们在项    目中的正式用法就是这样。
+在成员变量上直接标记@Autowired注解即可完成自动装配，不需要提供setXxx()方法。以后我们在项目中的正式用法就是这样。
 
 ##### @Autowired工作流程
 

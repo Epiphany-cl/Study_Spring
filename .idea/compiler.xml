@@ -7,10 +7,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="spring01" />
+        <module name="spring06_tx" />
         <module name="spring04_AOP" />
-        <module name="spring02" />
         <module name="spring03" />
+        <module name="spring07_tx_xml" />
+        <module name="spring01" />
+        <module name="spring02" />
+        <module name="spring05_JdbcTemplate" />
       </profile>
     </annotationProcessing>
   </component>
