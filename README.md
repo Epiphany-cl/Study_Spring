@@ -1500,9 +1500,9 @@ public void methodWithSupportsPropagation() {
     <!-- isolation属性：设置事务的隔离级别 -->
     <!-- timeout属性：设置事务的超时属性 -->
     <!-- propagation属性：设置事务的传播行为 -->
-    <tx:method name="save*" read-only="false" rollback- for="java.lang.Exception" propagation="REQUIRES_NEW"/>
-    <tx:method name="update*" read-only="false" rollback- for="java.lang.Exception" propagation="REQUIRES_NEW"/>
-    <tx:method name="delete*" read-only="false" rollback- for="java.lang.Exception" propagation="REQUIRES_NEW"/>
+    <tx:method name="save*" read-only="false" rollback-for="java.lang.Exception" propagation="REQUIRES_NEW"/>
+    <tx:method name="update*" read-only="false" rollback-for="java.lang.Exception" propagation="REQUIRES_NEW"/>
+    <tx:method name="delete*" read-only="false" rollback-for="java.lang.Exception" propagation="REQUIRES_NEW"/>
   </tx:attributes>
 </tx:advice>
 ```
