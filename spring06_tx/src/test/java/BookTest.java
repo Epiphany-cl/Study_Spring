@@ -15,7 +15,7 @@ public class BookTest {
     private BookController bookController;
 
     @Test
-    public void testBuyBook() throws FileNotFoundException {
+    public void testBuyBook() {
         bookController.buyBook(1, 1);
     }
 }

@@ -15,14 +15,14 @@ public class BookServiceImpl implements BookService {
 
     @Transactional //开启事务
     @Override
-    public void buyBook(Integer bookId, Integer userId) throws FileNotFoundException {
+    public void buyBook(Integer bookId, Integer userId){
         //查询图书的价格
         Integer price = bookDao.getPriceByBookId(bookId);
         //更新图书的库存
         bookDao.updateStock(bookId);
 
         //默认编译时异常不会回滚
-        FileOutputStream fileOutputStream = new FileOutputStream("x:/a.txt");
+//        FileOutputStream fileOutputStream = new FileOutputStream("x:/a.txt");
 
         //更新用户的余额
         bookDao.updateBalance(userId, price);

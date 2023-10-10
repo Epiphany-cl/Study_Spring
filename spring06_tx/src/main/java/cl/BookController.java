@@ -11,7 +11,7 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    public void buyBook(Integer bookId, Integer userId) throws FileNotFoundException {
+    public void buyBook(Integer bookId, Integer userId){
         bookService.buyBook(bookId, userId);
     }
 }
